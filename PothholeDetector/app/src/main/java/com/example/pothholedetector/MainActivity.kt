@@ -5,6 +5,8 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -23,7 +25,7 @@ class MainActivity : AppCompatActivity() {
     private var imageAnalysis: ImageAnalysis? = null
     private var isDetecting = false
     private var lastDetectionTime = 0L
-    private val detectionInterval = 500L // Detectar cada 500ms
+    private val detectionInterval = 500L
 
     companion object {
         private const val TAG = "MainActivity"
@@ -39,15 +41,14 @@ class MainActivity : AppCompatActivity() {
         potholeDetector = PotholeDetector(this)
 
         // Estado inicial
-        binding.tvStatus.text = "⏳ Cargando modelo..."
-        binding.btnStart.text = "INICIAR"
+        binding.tvStatus.text = "Detección pausada"
+        binding.btnStart.text = "INICIAR DETECCIÓN"
 
         // Inicializar detector
         if (potholeDetector.initialize()) {
-            binding.tvStatus.text = "✅ Listo para detectar"
             Toast.makeText(this, "Modelo cargado exitosamente", Toast.LENGTH_SHORT).show()
         } else {
-            binding.tvStatus.text = "❌ Error cargando modelo"
+            binding.tvStatus.text = "Error cargando modelo"
             Toast.makeText(this, "Error cargando modelo", Toast.LENGTH_LONG).show()
         }
 
@@ -67,10 +68,17 @@ class MainActivity : AppCompatActivity() {
         runOnUiThread {
             if (isDetecting) {
                 binding.btnStart.text = "DETENER"
-                binding.tvStatus.text = "🔍 Detectando..."
+                binding.tvStatus.text = "Buscando baches..."
+                
+                // Iniciar animación solo del indicador
+                val rotateAnim = AnimationUtils.loadAnimation(this, R.anim.rotate_animation)
+                binding.statusIndicator.startAnimation(rotateAnim)
             } else {
-                binding.btnStart.text = "INICIAR"
-                binding.tvStatus.text = "⏸️ Detenido"
+                binding.btnStart.text = "INICIAR DETECCIÓN"
+                binding.tvStatus.text = "Detección pausada"
+                
+                // Detener animación
+                binding.statusIndicator.clearAnimation()
             }
         }
     }
@@ -154,10 +162,13 @@ class MainActivity : AppCompatActivity() {
             runOnUiThread {
                 if (detections.isNotEmpty()) {
                     val detection = detections.first()
-                    binding.tvStatus.text = "🚧 BACHE DETECTADO! (${(detection.confidence * 100).toInt()}%)"
+                    val confidence = (detection.confidence * 100).toInt()
+                    
+                    binding.tvStatus.text = "¡BACHE DETECTADO! ($confidence%)"
+                    
                     Log.d(TAG, "Pothole detected: confidence=${detection.confidence}, bbox=${detection.bbox}")
                 } else {
-                    binding.tvStatus.text = "🔍 Buscando baches..."
+                    binding.tvStatus.text = "Buscando baches..."
                 }
             }
 

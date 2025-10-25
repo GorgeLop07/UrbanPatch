@@ -1,42 +1,212 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#000000">
+    android:background="@drawable/bg_gradient_red"
+    android:fitsSystemWindows="true">
 
-    <!-- Cámara -->
-    <androidx.camera.view.PreviewView
-        android:id="@+id/viewFinder"
+    <!-- Status Bar Spacer -->
+    <View
+        android:id="@+id/statusBarSpacer"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_height="48dp"
+        android:background="#33450a0a"
+        app:layout_constraintTop_toTopOf="parent"/>
 
-    <!-- Panel inferior -->
-    <LinearLayout
+    <!-- Header with Banorte Logo -->
+    <FrameLayout
+        android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:background="#1F1F1F">
+        android:background="@drawable/bg_header"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        android:elevation="8dp"
+        app:layout_constraintTop_toBottomOf="@id/statusBarSpacer">
 
-        <TextView
-            android:id="@+id/tvStatus"
+        <ImageView
+            android:layout_width="180dp"
+            android:layout_height="48dp"
+            android:layout_gravity="end|center_vertical"
+            android:src="@drawable/banorte_header"
+            android:scaleType="fitEnd"
+            android:adjustViewBounds="true"
+            android:contentDescription="Banorte Logo"/>
+    </FrameLayout>
+
+    <!-- Main Content ScrollView -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="24dp"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Inicializando..."
-            android:textColor="#4CAF50"
-            android:textSize="14sp"
-            android:layout_marginBottom="12dp"/>
+            android:orientation="vertical"
+            android:gravity="top">
 
-        <Button
-            android:id="@+id/btnStart"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="INICIAR"
-            android:textSize="16sp"/>
+            <!-- Camera Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cameraCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="24dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                android:layout_marginBottom="24dp">
 
-    </LinearLayout>
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-</LinearLayout>
+                    <!-- Camera Preview with aspect ratio -->
+                    <androidx.camera.view.PreviewView
+                        android:id="@+id/viewFinder"
+                        android:layout_width="match_parent"
+                        android:layout_height="500dp"
+                        android:background="#000000"/>
+
+                    <!-- Camera Active Badge -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|center_horizontal"
+                        android:layout_marginTop="16dp"
+                        android:background="#CC450a0a"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:elevation="4dp">
+
+                        <View
+                            android:layout_width="8dp"
+                            android:layout_height="8dp"
+                            android:background="@android:color/white"
+                            android:layout_marginEnd="8dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Cámara activa"
+                            android:textColor="#fca5a5"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif-medium"/>
+                    </LinearLayout>
+
+                </FrameLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Status Card -->
+            <LinearLayout
+                android:id="@+id/statusCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_status_card"
+                android:padding="20dp"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <View
+                        android:id="@+id/statusIndicator"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:background="@android:color/white"
+                        android:layout_marginEnd="12dp"/>
+
+                    <TextView
+                        android:id="@+id/tvStatus"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Buscando baches..."
+                        android:textColor="#fca5a5"
+                        android:textSize="16sp"
+                        android:fontFamily="sans-serif-medium"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Control Button -->
+            <Button
+                android:id="@+id/btnStart"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:text="INICIAR DETECCIÓN"
+                android:textSize="16sp"
+                android:textColor="@android:color/white"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.05"
+                android:background="@drawable/bg_button_primary"
+                android:elevation="16dp"
+                android:stateListAnimator="@null"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Info Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_info_card"
+                android:padding="16dp"
+                android:orientation="horizontal"
+                android:gravity="top">
+
+                <View
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:background="#f87171"
+                    android:layout_marginEnd="12dp"
+                    android:layout_marginTop="2dp"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Consejo"
+                        android:textColor="#fca5a5"
+                        android:textSize="14sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:layout_marginBottom="4dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Mantén la cámara estable y enfocada en la carretera para una mejor detección."
+                        android:textColor="#fef2f2"
+                        android:textSize="14sp"
+                        android:lineSpacingExtra="2dp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Bottom Spacer for gradient effect -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="80dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
