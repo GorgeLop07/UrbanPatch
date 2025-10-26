@@ -35,11 +35,10 @@ def pdf_builder(No_colonias: int, responses : list, nombres):
 
     pdf.set_font("arial", "", 12)
     pdf.set_xy(15,70)
-    pdf.multi_cell(0,5,"""El deterioro de la infraestructura vial es uno de los principales problemas urbanos que afecta la movilidad, 
-                   la seguridad y la calidad de vida de los habitantes de Monterrey. En diversas colonias del municipio, la presencia de 
-                   baches ha generado afectaciones tanto económicas como estructurales, incrementando los costos de mantenimiento vehicular 
-                   y reduciendo la eficiencia del tránsito. Este reporte presenta un análisis de las colonias con mayores incidencias de baches,
-                    identificando las zonas más afectadas y evaluando el impacto que este problema tiene sobre la infraestructura y los servicios públicos.""", border)
+    pdf.multi_cell(0,7,"El deterioro de la infraestructura vial es uno de los principales problemas urbanos que afecta la movilidad, la seguridad y la calidad de vida de los habitantes de Monterrey." 
+                   "En diversas colonias del municipio, la presencia de baches ha generado afectaciones tanto económicas como estructurales, incrementando los costos de mantenimiento vehicular  y "
+                   "reduciendo la eficiencia del tránsito. Este reporte presenta un análisis de las colonias con mayores incidencias de baches, identificando las zonas más afectadas y evaluando "
+                   "el impacto que este problema tiene sobre la infraestructura y los servicios públicos.", border)
 
     pdf.set_font("arial", "B", 14)
     pdf.set_xy(10,120)
@@ -66,14 +65,14 @@ def pdf_builder(No_colonias: int, responses : list, nombres):
         pdf.set_xy(15,50)
         #pdf.cell(0,35,"Neighbourhood one text", border)
         pdf.multi_cell(0,7,responses[i].text, border)
-        pdf.set_xy(15,140)
+        pdf.set_xy(15,100)
         img_sz = 100
         pdf.image("spong.png", w=img_sz, x= (W-img_sz)/2 )
 
     
     
 
-    pdf.output("tutorial.pdf")
+    pdf.output("REPORTE.pdf")
 
 
 #syntasis/doc:

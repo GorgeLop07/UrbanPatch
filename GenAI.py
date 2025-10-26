@@ -41,7 +41,7 @@ for i in range(No_colonias):
     contents= f'''has un pequeño parrafo sobre los problemas de infraestructura relacionados con pavimentación
     Aqui hay un ejemplo de como estructurarlo:
 
-    La colonia Benito Juarez del municipio de Monterrey a recibido reporte de 10 fallas
+    La colonia Benito Juarez a recibido reporte de 10 fallas
     El costo total aproximado para arreglar todas las fallas es de 3200 pesos    
     
     VARIABLES: nombre colonia = {nombre_col}, total reportes = {total_reportes},  costo de reparación {costo_reparacion}'''
