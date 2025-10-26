@@ -2,14 +2,23 @@ from google import genai
 from google.genai import types
 from pdf import pdf_builder
 import json 
+from flask import Flask
+import requests
+
+#server stuff
+rute = "http://10.22.229.101:8001/api/reportes/top_10_colonias"
+
+# GET request
+response_get = requests.get(rute)
+response_json = response_get.json()
+
 
 API_KEY = "AIzaSyBFqFPO6h7F88h4J_cFA6_Wpgs_DBqmyjY"
 client = genai.Client(api_key=API_KEY)
 responses = []
 
 #JSON READ:
-with open('test.json', 'r') as file:
-    data = json.load(file)
+data = response_json
 No_colonias = 10  #total colonias
 
 nombres = []
@@ -32,7 +41,7 @@ for i in range(No_colonias):
     config=types.GenerateContentConfig(
         thinking_config=types.ThinkingConfig(thinking_budget=0), # Disables thin]king
         #settings:
-        #temperature=0.5
+        #temperature=0.2
         system_instruction=
         ("Eres un trabajador bancario y necesitas realizar un reporte para una colonia con problemas de infraestructura "
          "la respuesta tiene una estructura definida ejemplificada despues las variables usadas son: Nombre colonia, cantidad de fallas, costo de arreglar fallas"
@@ -42,8 +51,8 @@ for i in range(No_colonias):
     Aqui hay un ejemplo de como estructurarlo:
 
     La colonia Benito Juarez a recibido reporte de 10 fallas
-    El costo total aproximado para arreglar todas las fallas es de 3200 pesos    
-    
+    El costo total aproximado para arreglar todas las fallas es de 3200 pesos
+
     VARIABLES: nombre colonia = {nombre_col}, total reportes = {total_reportes},  costo de reparación {costo_reparacion}'''
     ))
 
