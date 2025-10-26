@@ -63,11 +63,9 @@ def pdf_builder(No_colonias: int, responses : list, nombres):
         pdf.cell(0,10, nombres[i], border)
         pdf.set_font("arial", "", 12)
         pdf.set_xy(15,50)
-        #pdf.cell(0,35,"Neighbourhood one text", border)
         pdf.multi_cell(0,7,responses[i].text, border)
-        pdf.set_xy(15,100)
         img_sz = 100
-        pdf.image("spong.png", w=img_sz, x= (W-img_sz)/2 )
+        pdf.image("spong.png", w=img_sz, x= (W-img_sz)/2, y = pdf.get_y() + 10)
 
     
     
