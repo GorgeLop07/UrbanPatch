@@ -22,6 +22,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var potholeDetector: PotholeDetector
+    private lateinit var reporteManager: ReporteManager
     private var imageAnalysis: ImageAnalysis? = null
     private var isDetecting = false
     private var lastDetectionTime = 0L
@@ -29,6 +30,11 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MainActivity"
+        private val REQUIRED_PERMISSIONS = arrayOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +45,7 @@ class MainActivity : AppCompatActivity() {
 
         cameraExecutor = Executors.newSingleThreadExecutor()
         potholeDetector = PotholeDetector(this)
+        reporteManager = ReporteManager(this)
 
         // Estado inicial
         binding.tvStatus.text = "Detección pausada"
@@ -56,10 +63,11 @@ class MainActivity : AppCompatActivity() {
             toggleDetection()
         }
 
-        if (hasCameraPermission()) {
+        if (allPermissionsGranted()) {
             startCamera()
+            reporteManager.solicitarUbicacionActual()
         } else {
-            requestCameraPermission()
+            requestPermissions()
         }
     }
 
@@ -83,23 +91,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun hasCameraPermission() =
-        ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
-                PackageManager.PERMISSION_GRANTED
+    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
+        ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
+    }
 
     private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        if (permissions.all { it.value }) {
             startCamera()
+            reporteManager.solicitarUbicacionActual()
         } else {
-            Toast.makeText(this, "Permiso de cámara requerido", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Permisos requeridos no otorgados", Toast.LENGTH_LONG).show()
             finish()
         }
     }
 
-    private fun requestCameraPermission() {
-        requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+    private fun requestPermissions() {
+        requestPermissionLauncher.launch(REQUIRED_PERMISSIONS)
     }
 
     private fun startCamera() {
@@ -164,7 +173,37 @@ class MainActivity : AppCompatActivity() {
                     val detection = detections.first()
                     val confidence = (detection.confidence * 100).toInt()
                     
+                    Log.d(TAG, "🎯 DETECCIÓN! Clase: ${detection.className}, Confianza: $confidence%")
+                    
                     binding.tvStatus.text = "¡BACHE DETECTADO! ($confidence%)"
+                    
+                    // Reportar al servidor con timeout de 5 segundos
+                    // Usa el className directamente del modelo YOLO
+                    Log.d(TAG, "🚀 Intentando reportar falla...")
+                    reporteManager.reportarFalla(
+                        nombreFalla = detection.className, // "pothole"
+                        confianza = detection.confidence,
+                        onSuccess = {
+                            runOnUiThread {
+                                Log.d(TAG, "🎉 REPORTE EXITOSO!")
+                                Toast.makeText(
+                                    this,
+                                    "✅ Reporte enviado al servidor",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        },
+                        onError = { error ->
+                            runOnUiThread {
+                                Log.e(TAG, "💥 ERROR EN REPORTE: $error")
+                                Toast.makeText(
+                                    this,
+                                    "❌ Error: $error",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
+                    )
                     
                     Log.d(TAG, "Pothole detected: confidence=${detection.confidence}, bbox=${detection.bbox}")
                 } else {

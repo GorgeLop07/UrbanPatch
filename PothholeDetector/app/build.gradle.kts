@@ -54,4 +54,15 @@ dependencies {
     // TensorFlow Lite
     implementation("org.tensorflow:tensorflow-lite:2.14.0")
     implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
+    
+    // Retrofit para HTTP requests
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+    
+    // Google Location Services para GPS
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+    
+    // Gson
+    implementation("com.google.code.gson:gson:2.10.1")
 }

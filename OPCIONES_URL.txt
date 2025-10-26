@@ -1,0 +1,20 @@
+// OPCIONES ALTERNATIVAS SI NO FUNCIONA:
+
+// OPCIÓN A: Con trailing slash
+@POST("api/registrar_falla/")
+fun registrarFalla(@Body registro: RegistroFalla): Call<ApiResponse>
+
+// OPCIÓN B: Sin "api/"
+@POST("registrar_falla")
+fun registrarFalla(@Body registro: RegistroFalla): Call<ApiResponse>
+
+// OPCIÓN C: URL completa (no recomendado pero funciona)
+@POST("http://10.22.230.120:8000/api/registrar_falla/")
+fun registrarFalla(@Body registro: RegistroFalla): Call<ApiResponse>
+
+// OPCIÓN D: Cambiar BASE_URL a incluir /api/
+// En RetrofitClient.kt:
+private const val BASE_URL = "http://10.22.230.120:8000/api/"
+// Y en ApiService.kt:
+@POST("registrar_falla")
+fun registrarFalla(@Body registro: RegistroFalla): Call<ApiResponse>
