@@ -91,7 +91,7 @@ class ReporteManager(private val context: Context) {
     ) {
         Log.d(TAG, "═══════════════════════════════════")
         Log.d(TAG, "📤 ENVIANDO REPORTE AL SERVIDOR")
-        Log.d(TAG, "🌐 URL: http://10.22.228.118:8000/api/registrar_falla/")
+        Log.d(TAG, "🌐 URL: http://10.22.236.244:8001/api/registrar_falla/")
         Log.d(TAG, "📍 Lat: ${registro.latitud}, Lon: ${registro.longitud}")
         Log.d(TAG, "🏷️  Tipo: ${registro.nombreFallaDetectada}")
         Log.d(TAG, "📊 Confianza: ${registro.nivelConfianza}")
