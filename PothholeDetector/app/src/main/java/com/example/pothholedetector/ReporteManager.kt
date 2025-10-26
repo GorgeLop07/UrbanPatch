@@ -61,8 +61,7 @@ class ReporteManager(private val context: Context) {
                     latitud = location.latitude,
                     longitud = location.longitude,
                     nombreFallaDetectada = nombreFalla,
-                    nivelConfianza = confianza.toDouble(),
-                    urlImagen = null // Opcional
+                    nivelConfianza = confianza.toDouble()
                 )
                 
                 // Enviar al servidor

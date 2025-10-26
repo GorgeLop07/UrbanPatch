@@ -16,10 +16,7 @@ data class RegistroFalla(
     val nombreFallaDetectada: String,
     
     @SerializedName("nivel_confianza")
-    val nivelConfianza: Double,
-    
-    @SerializedName("url_imagen")
-    val urlImagen: String? = "null"
+    val nivelConfianza: Double
 )
 
 data class ApiResponse(
