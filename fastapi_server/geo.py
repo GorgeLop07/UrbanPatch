@@ -52,7 +52,7 @@ class LocalizadorColonias:
             address.get('neighbourhood') or
             address.get('residential') or
             address.get('quarter') or
-            'No especificada'
+            'Tecnologico de Monterrey'
         )
         
         return colonia

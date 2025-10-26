@@ -68,8 +68,8 @@ def main():
         #lat = float(input("Latitud (ej. 25.686614): "))
         #lon = float(input("Longitud (ej. -100.316112): "))
 
-        lat = 25.65240075381403
-        lon = -100.30283765582529 
+        lat = 25.65076851606196 
+        lon = -100.28913624508401
         print("\n BUSCANDO COLONIA POR GPS")
         
         
