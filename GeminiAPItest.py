@@ -3,63 +3,49 @@ from google.genai import types
 from pdf import pdf_builder
 import json 
 
-API_KEY = "AIzaSyDt8B8xI8L2UUYghC4ubdk1ENATCe33LuU"
+API_KEY = "AIzaSyBFqFPO6h7F88h4J_cFA6_Wpgs_DBqmyjY"
 client = genai.Client(api_key=API_KEY)
 responses = []
 
 #JSON READ:
 with open('test.json', 'r') as file:
     data = json.load(file)
-No_colonias = len(data["top_10_colonias"]) #total colonias no total fallas
+No_colonias = 10  #total colonias
 
+nombres = []
 
 for i in range(No_colonias):
-    #JSON
-    cnt_fallas_chicas, cnt_fallas_medianas, cnt_fallas_grandes, prioridad_promedio = 0,0,0,0
+    faltas_criticas = 0
+    faltas_altas = 0
+    faltas_bajas = 0
 
-    data_col = data["top_10_colonias"][i]
-    for j in range(len(data_col["registros_fallas"])):
-        data_falla = data_col["registros_fallas"][j]
-        if (data_falla["tipo_falla"]["prioridad"] == 1):
-            cnt_fallas_chicas += 1
-        elif (data_falla["tipo_falla"]["prioridad"] == 3):
-            cnt_fallas_medianas += 1
-        else:
-            cnt_fallas_grandes += 1
-    
-    prioridad_promedio = (cnt_fallas_chicas+cnt_fallas_grandes+cnt_fallas_medianas)/data_col["total_fallas"]
+    nombre_col = data["top_10_colonias"][i]["nombre_colonia"]
+    nombres.append(str(nombre_col))
+    total_reportes = data["top_10_colonias"][i]["total_fallas"]
+    costo_reparacion = total_reportes*450
 
 
 
     responses.append(client.models.generate_content(
-    model = "gemini-2.5-flash",
+    model = "gemini-2.5-flash-lite",
 
     config=types.GenerateContentConfig(
-        thinking_config=types.ThinkingConfig(thinking_budget=0), # Disables thinking
+        thinking_config=types.ThinkingConfig(thinking_budget=0), # Disables thin]king
         #settings:
         #temperature=0.5
         system_instruction=
-        ("You are a Bank worker generating a report to the government regarding the state of a neighbourhoods public infrastructure "
-         "The response has _ different structures, first make a paragraph with the information: Nombre colonia, Municipio, Cantidad de fallas chicas, Cantidad de fallas medianas, Cantidad de fallas grandes y prioridad promedio de falla"
-         "Then in the next line costo de reparación completa"
-         "Then on a bulleted list the differnt sizes and their total cost"
-         "Finally a small sentence or two describing the partial repairs you can do to reach an acceptable level") #gives instruccions over the prompt
+        ("Eres un trabajador bancario y necesitas realizar un reporte para una colonia con problemas de infraestructura "
+         "la respuesta tiene una estructura definida ejemplificada despues las variables usadas son: Nombre colonia, cantidad de fallas, costo de arreglar fallas"
+         "en la siguiente parte usa la reparación completa proveida")
     ),
+    contents= f'''has un pequeño parrafo sobre los problemas de infraestructura relacionados con pavimentación
+    Aqui hay un ejemplo de como estructurarlo:
 
-    contents= f'''Make a small paragraph regarding the investment plan on a neighbourhood with potholes
-    Here are some examples of the structure it should have
+    La colonia Benito Juarez del municipio de Monterrey a recibido reporte de 10 fallas
+    El costo total aproximado para arreglar todas las fallas es de 3200 pesos    
     
-    La colonia Benito Juarez del municipio de Monterrey a recibido reporte de 3 fallas chicas, 5 fallas medianas, y 2 fallas grandes con un nivel promedio de falla de 2.4
-    El costo total aproximado para arreglar todas las fallas es de 3200 pesos
-    -Coste fallas chicas:   800
-    -Coste fallas medianas: 900
-    -Coste fallas grandes:  1500
-    Se puede llegar a un promedio de falla menor a 2 si se resuelven 1 falla grande, 2 fallas medianas y 3 fallas chicas
-    
-    END OF EXAMPLE:
-    Data: NOMBRE COLONIA {data["top_10_colonias"][i]["nombre_colonia"]}, Municipio Monterrey, fallas chicas {cnt_fallas_chicas}, fallas medianas {cnt_fallas_medianas}, fallas grandes {cnt_fallas_grandes} '''
+    VARIABLES: nombre colonia = {nombre_col}, total reportes = {total_reportes},  costo de reparación {costo_reparacion}'''
     ))
 
-pdf_builder(No_colonias, responses, data_col)
-
+pdf_builder(No_colonias, responses, nombres)
 #(responses[i]).text , asi accede a la respuesta por colonia.

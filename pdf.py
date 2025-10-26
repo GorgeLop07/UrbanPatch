@@ -11,12 +11,10 @@ class FPDF(FPDF):
     def footer (self):
         self.set_y(-20)
         pageNum = self.page_no()
-        self.cell(0,10,f"{self.footer_text}     {str(pageNum)}", "Top" ,align="R")
-        self.rect()
+        self.cell(0,10,str(pageNum), "Top" ,align="R")
+        #self.rect()
 
-def pdf_builder(No_colonias: int, responses : list):
-
-    colonias_Nom = ["escobedo", "roma", "roma2 ", "roma3", "roma4"]
+def pdf_builder(No_colonias: int, responses : list, nombres):
 
     #PDF SETUP
     pdf = FPDF("p", "mm", "A4") #orientacion, Unidad de medida, dimensiones puede ser en format=(x,y)
@@ -33,11 +31,15 @@ def pdf_builder(No_colonias: int, responses : list):
     #page 1
     pdf.set_font("arial", "B", 16)
     pdf.set_xy(10,40)
-    pdf.cell(0,10,"this is the title", border ,align="C")
+    pdf.cell(0,10,"Reporte automatizado de infraestructura en colonias de nuevo leon", border ,align="C")
 
     pdf.set_font("arial", "", 12)
     pdf.set_xy(15,70)
-    pdf.cell(0,35,"this is the Introduction", border)
+    pdf.multi_cell(0,5,"""El deterioro de la infraestructura vial es uno de los principales problemas urbanos que afecta la movilidad, 
+                   la seguridad y la calidad de vida de los habitantes de Monterrey. En diversas colonias del municipio, la presencia de 
+                   baches ha generado afectaciones tanto económicas como estructurales, incrementando los costos de mantenimiento vehicular 
+                   y reduciendo la eficiencia del tránsito. Este reporte presenta un análisis de las colonias con mayores incidencias de baches,
+                    identificando las zonas más afectadas y evaluando el impacto que este problema tiene sobre la infraestructura y los servicios públicos.""", border)
 
     pdf.set_font("arial", "B", 14)
     pdf.set_xy(10,120)
@@ -50,7 +52,7 @@ def pdf_builder(No_colonias: int, responses : list):
 
     for i in range(No_colonias):
         pdf.set_xy(15, Index_Y+Index_Y_step*i)
-        pdf.cell(0, 10, f"- {colonias_Nom[i]}") #COLONIAS NOM NO EXISTE AUN
+        pdf.cell(0, 10, nombres[i])
         pdf.set_xy(W*0.75, Index_Y+Index_Y_step*i)
         pdf.cell(0, 10, f"pg. {i+2}")
 
@@ -59,11 +61,11 @@ def pdf_builder(No_colonias: int, responses : list):
         pdf.add_page()
 
         pdf.set_font("arial", "B", 14)
-        pdf.cell(0,10,"Neighbourhood name", border)
+        pdf.cell(0,10, nombres[i], border)
         pdf.set_font("arial", "", 12)
         pdf.set_xy(15,50)
         #pdf.cell(0,35,"Neighbourhood one text", border)
-        pdf.multi_cell(0,7,(responses[i]).text,border)
+        pdf.multi_cell(0,7,responses[i].text, border)
         pdf.set_xy(15,140)
         img_sz = 100
         pdf.image("spong.png", w=img_sz, x= (W-img_sz)/2 )
