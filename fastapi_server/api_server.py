@@ -1,8 +1,8 @@
-# api_server.py
+# api_server.py (Corregido)
 from fastapi import FastAPI, HTTPException, status, Request
 import mysql.connector
-from datetime import datetime
-from db_schema import RegistroFalla # Nota: Este modelo ya no necesita el campo id_usuario
+from datetime import datetime, date
+from db_schema import RegistroFalla 
 from geo import LocalizadorColonias 
 
 app = FastAPI()
@@ -28,7 +28,7 @@ def get_db_connection():
             detail="Servicio de base de datos no disponible. Revisar logs del servidor."
         )
 
-# --- FUNCIÓN CENTRAL: OBTENER O CREAR USUARIO POR IP ---
+# --- FUNCIÓN CENTRAL: OBTENER O CREAR USUARIO POR IP (Sin cambios) ---
 def get_or_create_user_id(cursor, ip_dispositivo: str) -> int:
     """Busca un usuario por IP. Si no existe, lo crea y devuelve su ID."""
     
@@ -49,41 +49,46 @@ def get_or_create_user_id(cursor, ip_dispositivo: str) -> int:
     # 3. Devolver el ID recién creado
     return cursor.lastrowid
 
-
-# --- 1. Endpoint: REGISTRAR FALLA (POST) ---
+# --- Endpoint 1: REGISTRAR FALLA (POST) ---
 @app.post("/api/registrar_falla/")
 def registrar_falla(registro: RegistroFalla, request: Request):
     """
     Recibe datos, genera el usuario (si es nuevo) y registra la falla.
     """
+    
     conn = get_db_connection()
     cursor = conn.cursor()
 
     try:
-        # Obtener la IP del dispositivo (El identificador del usuario)
         ip_dispositivo = request.client.host
 
-        # --- A. OBTENER/CREAR USUARIO ---
+        # A. OBTENER/CREAR USUARIO
         id_usuario_encontrado = get_or_create_user_id(cursor, ip_dispositivo)
 
-        # --- B. Geocodificación y Búsqueda de IDs ---
-        nombre_colonia = localizador_geo.obtener_colonia_por_coordenadas(registro.latitud, registro.longitud)
+        # B. Geocodificación y Búsqueda de IDs (Colonia y Tipo Falla)
+        try:
+            nombre_colonia = localizador_geo.obtener_colonia_por_coordenadas(registro.latitud, registro.longitud)
+        except ValueError as ve:
+            # Captura errores de Nominatim y Geocodificación
+            raise HTTPException(status_code=status.HTTP_424_FAILED_DEPENDENCY, detail=f"Falla en geocodificación: {ve}")
+
         
         # B1. ID Colonia
         cursor.execute("SELECT id_colonia FROM COLONIAS WHERE nombre_colonia = %s", (nombre_colonia,))
         resultado_colonia = cursor.fetchone()
         if resultado_colonia is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Colonia '{nombre_colonia}' no encontrada.")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Colonia '{nombre_colonia}' no encontrada en BD.")
         id_colonia_encontrada = resultado_colonia[0]
         
         # B2. ID Tipo Falla
         cursor.execute("SELECT id_tipo_falla FROM TIPOS_FALLAS WHERE nombre_falla = %s", (registro.nombre_falla_detectada,))
         resultado_tipo_falla = cursor.fetchone()
         if resultado_tipo_falla is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Tipo de falla '{registro.nombre_falla_detectada}' no existe.")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Tipo de falla '{registro.nombre_falla_detectada}' no existe en BD.")
         id_tipo_falla_encontrado = resultado_tipo_falla[0]
         
-        # --- C. Inserción del registro ---
+        # C. Inserción del registro 
+        # *** CORRECCIÓN 1: Eliminada la coma extra al final de las columnas. ***
         query_falla = """
         INSERT INTO REGISTROS_FALLAS (
             id_usuario,
@@ -93,22 +98,20 @@ def registrar_falla(registro: RegistroFalla, request: Request):
             longitud, 
             fecha_hora_deteccion, 
             nivel_confianza, 
-            estado_reparacion, 
-            url_imagen
+            estado_reparacion
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
         
         valores_falla = (
-            id_usuario_encontrado,           # 1. id_usuario (Obtenido de la función)
-            id_colonia_encontrada,           # 2. id_colonia
-            id_tipo_falla_encontrado,        # 3. id_tipo_falla
-            registro.latitud,                # 4. latitud
-            registro.longitud,               # 5. longitud
-            datetime.now(),                  # 6. fecha_hora_deteccion
-            registro.nivel_confianza,        # 7. nivel_confianza
-            'Pendiente',                     # 8. estado_reparacion
-            registro.url_imagen              # 9. url_imagen
+            id_usuario_encontrado,           
+            id_colonia_encontrada,           
+            id_tipo_falla_encontrado,        
+            registro.latitud,                
+            registro.longitud,               
+            datetime.now(),                  
+            registro.nivel_confianza,        
+            'Pendiente',                                   
         )
 
         cursor.execute(query_falla, valores_falla)
@@ -117,13 +120,10 @@ def registrar_falla(registro: RegistroFalla, request: Request):
         return {
             "mensaje": "Falla registrada exitosamente", 
             "id_registro": cursor.lastrowid, 
-            "id_usuario_asignado": id_usuario_encontrado
+            "id_colonia_asignada": id_colonia_encontrada
         }
     
-    # Manejo de Errores (sin cambios)
-    except ValueError as ve:
-        conn.rollback() 
-        raise HTTPException(status_code=status.HTTP_424_FAILED_DEPENDENCY, detail=f"Falla en geocodificación: {ve}")
+    # Manejo de Errores
     except HTTPException:
         conn.rollback()
         raise
@@ -136,7 +136,7 @@ def registrar_falla(registro: RegistroFalla, request: Request):
         conn.close()
 
 
-# --- 2. Endpoint: CONSULTAR REGISTROS (GET) ---
+# --- Endpoint 2: CONSULTAR REGISTROS POR DISPOSITIVO (GET) (Sin cambios) ---
 @app.get("/api/dispositivo/registros_totales")
 def obtener_registros_por_dispositivo(request: Request):
     """Permite que un dispositivo consulte la cantidad total de fallas que ha reportado usando su IP."""
@@ -183,6 +183,100 @@ def obtener_registros_por_dispositivo(request: Request):
     finally:
         cursor.close()
         conn.close()
+
+
+# --- Endpoint 3: TOP 10 COLONIAS CON FALLAS ---
+@app.get("/api/reportes/top_10_colonias")
+def get_top_10_colonias_con_fallas():
+    """Devuelve las 10 colonias con más fallas registradas, incluyendo el detalle de cada falla."""
+    
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        # La consulta principal selecciona TODAS las columnas necesarias y ordena por el conteo de registros.
+        query_top_10 = """
+        SELECT 
+            C.id_colonia,
+            C.nombre_colonia,
+            R.*,               -- Selecciona todas las columnas de REGISTROS_FALLAS
+            T.nombre_falla AS tipo_falla_nombre,
+            T.prioridad AS tipo_falla_prioridad,
+            T.descripcion AS tipo_falla_descripcion
+        FROM 
+            REGISTROS_FALLAS R
+        JOIN 
+            COLONIAS C ON R.id_colonia = C.id_colonia
+        JOIN 
+            TIPOS_FALLAS T ON R.id_tipo_falla = T.id_tipo_falla
+        ORDER BY 
+            (SELECT COUNT(*) FROM REGISTROS_FALLAS WHERE id_colonia = C.id_colonia) DESC
+        LIMIT 1000;
+        """
+        
+        cursor.execute(query_top_10)
+        resultados_crudos = cursor.fetchall()
+        
+        if not resultados_crudos:
+            return {"mensaje": "No hay registros de fallas para generar el Top 10."}
+
+        # --- Agrupación en Python ---
+        
+        top_colonias = {}
+        
+        for row in resultados_crudos:
+            colonia_id = row['id_colonia']
+            
+            # --- Formateo de datos ---
+            fecha_deteccion_str = row['fecha_hora_deteccion'].isoformat() if isinstance(row['fecha_hora_deteccion'], (datetime, date)) else None
+
+            # 1. Preparar el detalle de la falla
+            # *** CORRECCIÓN 2: Eliminada la referencia a row['url_imagen']. ***
+            detalle_falla = {
+                "id_registro": row['id_registro'],
+                "latitud": float(row['latitud']),
+                "longitud": float(row['longitud']),
+                "fecha_hora_deteccion": fecha_deteccion_str,
+                "nivel_confianza": float(row['nivel_confianza']),
+                "estado_reparacion": row['estado_reparacion'],
+                "tipo_falla": {
+                    "id_tipo_falla": row['id_tipo_falla'],
+                    "nombre": row['tipo_falla_nombre'],
+                    "prioridad": row['tipo_falla_prioridad'],
+                    "descripcion": row['tipo_falla_descripcion'],
+                }
+            }
+            
+            # 2. Agrupar la falla bajo su colonia
+            if colonia_id not in top_colonias:
+                top_colonias[colonia_id] = {
+                    "nombre_colonia": row['nombre_colonia'],
+                    "total_fallas": 0,
+                    "registros_fallas": []
+                }
+            
+            top_colonias[colonia_id]['total_fallas'] += 1
+            top_colonias[colonia_id]['registros_fallas'].append(detalle_falla)
+
+        # 3. Ordenar y limitar al Top 10 final
+        lista_ordenada = sorted(
+            top_colonias.values(), 
+            key=lambda item: item['total_fallas'], 
+            reverse=True
+        )[:10]
+
+        return {"top_10_colonias": lista_ordenada}
+
+    except Exception as e:
+        print(f"Error al generar el reporte Top 10: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail=f"Error al generar el reporte: {e}"
+        )
+    finally:
+        cursor.close()
+        conn.close()
+
 
 @app.get("/")
 def home():

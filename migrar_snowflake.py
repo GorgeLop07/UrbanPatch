@@ -14,7 +14,7 @@ MYSQL_CONFIG = {
 }
 # B. Snowflake (Reemplaza con tus credenciales)
 SNOWFLAKE_CONFIG = {
-    "user": "TU_USUARIO_SNOWFLAKE", 
+    "user": "MAGIO", 
     "password": "GioMax102._._.", 
     "account": "JO89951.us-east-1", # Ejemplo: 'xyz12345.us-east-1'
     "warehouse": "ANALISIS_SMART_CITY",

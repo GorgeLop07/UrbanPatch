@@ -12,6 +12,3 @@ class RegistroFalla(BaseModel):
     # Datos de Visión Computacional (Resultado de YOLO)
     nombre_falla_detectada: str
     nivel_confianza: float
-    
-    # Datos Opcionales (para referencia)
-    url_imagen: Optional[str] = None
