@@ -9,8 +9,8 @@ import requests
 rute = "http://10.22.229.101:8001/api/reportes/top_10_colonias"
 
 # GET request
-response_get = requests.get(rute)
-response_json = response_get.json()
+#response_get = requests.get(rute)
+#response_json = response_get.json()
 
 
 API_KEY = "AIzaSyBFqFPO6h7F88h4J_cFA6_Wpgs_DBqmyjY"
@@ -18,6 +18,10 @@ client = genai.Client(api_key=API_KEY)
 responses = []
 
 #JSON READ:
+    #from file
+with open('test.json', 'r') as file:
+    response_json = json.load(file)
+
 data = response_json
 No_colonias = 10  #total colonias
 
@@ -53,7 +57,8 @@ for i in range(No_colonias):
     La colonia Benito Juarez a recibido reporte de 10 fallas
     El costo total aproximado para arreglar todas las fallas es de 3200 pesos
 
-    VARIABLES: nombre colonia = {nombre_col}, total reportes = {total_reportes},  costo de reparación {costo_reparacion}'''
+    VARIABLES: nombre colonia = {nombre_col}, total reportes = {total_reportes},  costo de reparación {costo_reparacion}
+    Con los datos anteriores genera un parrafo corto extra sobre la infraestructura en la colonia de una forma mas interpretativa, haslo de forma profesional y no inventes información'''
     ))
 
 pdf_builder(No_colonias, responses, nombres)
