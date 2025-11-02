@@ -252,11 +252,43 @@ Este proyecto fue desarrollado durante el HackMty 2025
 
 ### Desarrolladores
 
-- @GorgeLop07 - Jorge Luis Lopez Garcia
-- @Thermoflask7 - Mateo Zaragoza Burruel
-- @GioMax102 - Mario Giovanni Gonzalez Lopez
-- @Juanrdz42 - Juan Antonio Rodriguez Reyna
-- Oficialmente: EQUIPO 2 **(YEA)**
+### Desarrolladores
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/GorgeLop07">
+        <img src="https://github.com/GorgeLop07.png?size=100" width="100px;" alt="Foto de Jorge Luis Lopez Garcia"/>
+        <br />
+        <sub><b>Jorge Luis Lopez Garcia</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/Thermoflask7">
+        <img src="https://github.com/Thermoflask7.png?size=100" width="100px;" alt="Foto de Mateo Zaragoza Burruel"/>
+        <br />
+        <sub><b>Mateo Zaragoza Burruel</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/GioMax102">
+        <img src="https://github.com/GioMax102.png?size=100" width="100px;" alt="Foto de Mario Giovanni Gonzalez Lopez"/>
+        <br />
+        <sub><b>Mario Giovanni Gonzalez Lopez</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/Juanrdz42">
+        <img src="https://github.com/Juanrdz42.png?size=100" width="100px;" alt="Foto de Juan Antonio Rodriguez Reyna"/>
+        <br />
+        <sub><b>Juan Antonio Rodriguez Reyna</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
+
+### Contacto y Soporte
+...
 
 ## Contacto y Soporte
 
